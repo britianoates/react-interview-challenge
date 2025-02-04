@@ -16,17 +16,13 @@ export const AccountDashboard = (props: AccountDashboardProps) => {
 
   const {signOut} = props;
 
-  const depositFunds = async () => {
-    const requestOptions = {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({amount: depositAmount})
-    }
-    const response = await fetch(`http://localhost:3000/transactions/${account.accountNumber}/deposit`, requestOptions);
+  const refreshState = async (response:Response) => {
+    //The response from the server is either the latest account info or a list of errors received while attempting an action
     const data = await response.json();
     if(response.status >= 400) {
       setError(data.error)
     }
+    //300 status codes are usually transparent to the client side, but if we had logging or a business rule it would go here
     if(response.status < 300) {
       setError("")
       setAccount({
@@ -39,27 +35,32 @@ export const AccountDashboard = (props: AccountDashboardProps) => {
     }
   }
 
+  const depositFunds = async () => {
+    if(depositAmount < 1 || depositAmount > 1000) {
+      setError("There were validation errors: Please use a deposit value from 1 to 1000");
+      return;
+    }
+    const requestOptions = {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({amount: depositAmount})
+    }
+    const response = await fetch(`http://localhost:3000/transactions/${account.accountNumber}/deposit`, requestOptions);
+    refreshState(response)
+  }
+
   const withdrawFunds = async () => {
+    if(withdrawAmount < 1 || withdrawAmount > 200) {
+      setError("There were validation errors: Please use a withdraw value from 1 to 200");
+      return;
+    }
     const requestOptions = {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({amount: withdrawAmount})
     }
     const response = await fetch(`http://localhost:3000/transactions/${account.accountNumber}/withdraw`, requestOptions);
-    const data = await response.json();
-    if(response.status >= 400) {
-      setError(data.error)
-    }
-    if(response.status < 300) {
-      setError("")
-      setAccount({
-        accountNumber: data.account_number,
-        name: data.name,
-        amount: data.amount,
-        type: data.type,
-        creditLimit: data.credit_limit
-      });
-    }
+    refreshState(response)
   }
 
   return (
