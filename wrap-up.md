@@ -1,6 +1,7 @@
 ## Questions
 
 ### What issues, if any, did you find with the existing code?
+Added several more test records for some edge cases, making sure credit didnt have side effects I couldn't predict. Something like balances not divisible by 5 seems out of scope, but I prefered to test it than risk it.
 
 ### What issues, if any, did you find with the request to add functionality?
 
