@@ -1,5 +1,7 @@
 import { query } from "../utils/db";
 
+const dailyWithdrawLimit = process.env.DAILY_WITHDRAW_LIMIT || 400
+
 const getTransactions = async (accountID: string) => {
     const res = await query(`
         SELECT account_number, amount, date_time
@@ -7,7 +9,7 @@ const getTransactions = async (accountID: string) => {
         WHERE account_number = $1`,
         [accountID]
       );
-      
+
       return res.rows;
 }
 
@@ -17,6 +19,12 @@ const withdrawlRules = [
     (account:any, transactions:Array<any>, amount:number) => {return account.type == "checking" && account.amount < amount ? "Insufficient funds" : ""},
     (account:any, transactions:Array<any>, amount:number) => {return account.type == "savings" && account.amount < amount ? "Insufficient funds" : ""},
     (account:any, transactions:Array<any>, amount:number) => {return account.type == "credit" && account.amount - amount + account.credit_limit < 0 ? "Insufficient credit" : ""},
+    (account:any, transactions:Array<any>, amount:number) => {
+        const todaysDate = new Date().toDateString()
+        const todaysTransactions = transactions.filter(it => (new Date(parseInt(it.date_time)).toDateString() == todaysDate))
+        const todaysWithdrawls = todaysTransactions.filter(it => it.amount < 0)
+        const todaysTotalWithdrawn = todaysWithdrawls.reduce((sum, current) => current.amount + sum, 0)
+        return todaysTotalWithdrawn - amount < -dailyWithdrawLimit ? "Amount over daily limit" : ""},
 ]
 
 export const getValidationErrors = async (account: any, amount: number) => {

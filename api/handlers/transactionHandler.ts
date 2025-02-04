@@ -9,6 +9,10 @@ export const withdrawal = async (accountID: string, amount: number) => {
     throw new Error("There were validation errors: " + (errors).join(", "))
   }
   account.amount -= amount;
+  await query(`
+    INSERT INTO transactions(account_number, date_time, amount) VALUES ($1, $2, $3)`,
+    [accountID, Date.now(), -amount]
+  );
   const res = await query(`
     UPDATE accounts
     SET amount = $1 
