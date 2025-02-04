@@ -12,6 +12,7 @@ export const AccountDashboard = (props: AccountDashboardProps) => {
   const [depositAmount, setDepositAmount] = useState(0);
   const [withdrawAmount, setWithdrawAmount] = useState(0);
   const [account, setAccount] = useState(props.account); 
+  const [error, setError] = useState("");
 
   const {signOut} = props;
 
@@ -40,13 +41,19 @@ export const AccountDashboard = (props: AccountDashboardProps) => {
     }
     const response = await fetch(`http://localhost:3000/transactions/${account.accountNumber}/withdraw`, requestOptions);
     const data = await response.json();
-    setAccount({
-      accountNumber: data.account_number,
-      name: data.name,
-      amount: data.amount,
-      type: data.type,
-      creditLimit: data.credit_limit
-    });
+    if(response.status >= 400) {
+      setError(data.error)
+    }
+    if(response.status < 300) {
+      setError("")
+      setAccount({
+        accountNumber: data.account_number,
+        name: data.name,
+        amount: data.amount,
+        type: data.type,
+        creditLimit: data.credit_limit
+      });
+    }
   }
 
   return (
@@ -113,6 +120,11 @@ export const AccountDashboard = (props: AccountDashboardProps) => {
           </Card>
         </Grid>
       </Grid>
+      {error.length > 0 &&
+        <Grid container spacing={2} padding={2}>
+          <h2 style={{color: 'red'}}>{error}</h2>
+        </Grid>
+      }
     </Paper>
     
   )

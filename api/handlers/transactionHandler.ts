@@ -1,8 +1,13 @@
 import { query } from "../utils/db";
 import { getAccount } from "./accountHandler";
+import { getValidationErrors } from "./withdrawValidator"
 
 export const withdrawal = async (accountID: string, amount: number) => {
   const account = await getAccount(accountID);
+  const errors = await getValidationErrors(account, amount)
+  if(errors.length) {
+    throw new Error("There were validation errors: " + (errors).join(", "))
+  }
   account.amount -= amount;
   const res = await query(`
     UPDATE accounts
