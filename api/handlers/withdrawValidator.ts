@@ -14,6 +14,9 @@ const getTransactions = async (accountID: string) => {
 const withdrawlRules = [
     (account:any, transactions:Array<any>, amount:number) => {return amount > 200 ? "Amount over per transaction limit" : ""},
     (account:any, transactions:Array<any>, amount:number) => {return amount % 5 != 0 ? "Amount not in $5 increments" : ""},
+    (account:any, transactions:Array<any>, amount:number) => {return account.type == "checking" && account.amount < amount ? "Insufficient funds" : ""},
+    (account:any, transactions:Array<any>, amount:number) => {return account.type == "savings" && account.amount < amount ? "Insufficient funds" : ""},
+    (account:any, transactions:Array<any>, amount:number) => {return account.type == "credit" && account.amount - amount + account.credit_limit < 0 ? "Insufficient credit" : ""},
 ]
 
 export const getValidationErrors = async (account: any, amount: number) => {
