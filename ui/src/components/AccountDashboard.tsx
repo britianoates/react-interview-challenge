@@ -37,7 +37,7 @@ export const AccountDashboard = (props: AccountDashboardProps) => {
 
   const depositFunds = async () => {
     if(depositAmount < 1 || depositAmount > 1000) {
-      setError("There were validation errors: Please use a deposit value from 1 to 1000");
+      setError("There were validation errors: Please deposit a positive value up to 1000");
       return;
     }
     const requestOptions = {
@@ -51,7 +51,7 @@ export const AccountDashboard = (props: AccountDashboardProps) => {
 
   const withdrawFunds = async () => {
     if(withdrawAmount < 1 || withdrawAmount > 200) {
-      setError("There were validation errors: Please use a withdraw value from 1 to 200");
+      setError("There were validation errors: Please withdraw a positive value up to 200");
       return;
     }
     const requestOptions = {
