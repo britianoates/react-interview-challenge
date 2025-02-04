@@ -18,6 +18,7 @@ Under the balance we could show the remaining daily withdraw limit.
 If paying the credit back is part of a biling process we could include info like current balance due and due date
 
 ### If you were to continue building this out, what would you like to add next?
+I would add some handling of race conditions on the server side. Right now its possible for a user to hit the API for many withdraw requests at once and cause bad outcomes. It they can retrieve money without deducting their balance.
 Things I would recommend we do as we make this more matures:
 I'd design a centralized DateTime service to own all the logic. We would decide if the database or server would be the source of truth for accurate datetimes, and run all datetime comparison and manipulation through there to consolidate all the handling of timezones and prevent time slips. This is my first priority because as long as its unaddressed it would be risky to scale up with multiple APIs or a distributed database
 Organize a standard configuration method.  Env variables would be sufficient if we expect those values to only change during deployment. A util/configHandler.ts to fetch the configs would establish a shared configuration solution and could be enhanced to go from env values to a remote shared config service.
