@@ -1,6 +1,7 @@
 import { query } from "../utils/db";
 
-const dailyWithdrawLimit = process.env.DAILY_WITHDRAW_LIMIT || 400
+const transactionWithdrawLimit:number = +(process.env.TRANSACTION_WITHDRAW_LIMIT || 200)
+const dailyWithdrawLimit = +(process.env.DAILY_WITHDRAW_LIMIT || 400)
 
 const getTransactions = async (accountID: string) => {
     const res = await query(`
@@ -15,7 +16,7 @@ const getTransactions = async (accountID: string) => {
 
 const withdrawlRules = [
     (account:any, transactions:Array<any>, amount:number) => {return amount == 0 ? "Amount cannot be zero" : ""},
-    (account:any, transactions:Array<any>, amount:number) => {return amount > 200 ? "Amount over per transaction limit" : ""},
+    (account:any, transactions:Array<any>, amount:number) => {return amount > transactionWithdrawLimit ? "Amount over per transaction limit" : ""},
     (account:any, transactions:Array<any>, amount:number) => {return amount % 5 != 0 ? "Amount not in $5 increments" : ""},
     (account:any, transactions:Array<any>, amount:number) => {return account.type == "checking" && account.amount < amount ? "Insufficient funds" : ""},
     (account:any, transactions:Array<any>, amount:number) => {return account.type == "savings" && account.amount < amount ? "Insufficient funds" : ""},
@@ -28,7 +29,7 @@ const withdrawlRules = [
         return todaysTotalWithdrawn - amount < -dailyWithdrawLimit ? "Withdraw amount would go past the daily limit" : ""},
 ]
 
-export const getValidationErrors = async (account: any, amount: number) => {
+export const getWithdrawValidationErrors = async (account: any, amount: number) => {
   const transactions = await getTransactions(account.account_number);
   const errors = withdrawlRules.map((it:Function) => it(account, transactions, amount)).filter((it:string) => it.length > 0)
   return errors;
