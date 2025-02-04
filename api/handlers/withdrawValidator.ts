@@ -14,6 +14,7 @@ const getTransactions = async (accountID: string) => {
 }
 
 const withdrawlRules = [
+    (account:any, transactions:Array<any>, amount:number) => {return amount == 0 ? "Amount cannot be zero" : ""},
     (account:any, transactions:Array<any>, amount:number) => {return amount > 200 ? "Amount over per transaction limit" : ""},
     (account:any, transactions:Array<any>, amount:number) => {return amount % 5 != 0 ? "Amount not in $5 increments" : ""},
     (account:any, transactions:Array<any>, amount:number) => {return account.type == "checking" && account.amount < amount ? "Insufficient funds" : ""},
@@ -24,7 +25,7 @@ const withdrawlRules = [
         const todaysTransactions = transactions.filter(it => (new Date(parseInt(it.date_time)).toDateString() == todaysDate))
         const todaysWithdrawls = todaysTransactions.filter(it => it.amount < 0)
         const todaysTotalWithdrawn = todaysWithdrawls.reduce((sum, current) => current.amount + sum, 0)
-        return todaysTotalWithdrawn - amount < -dailyWithdrawLimit ? "Amount over daily limit" : ""},
+        return todaysTotalWithdrawn - amount < -dailyWithdrawLimit ? "Withdraw amount would go past the daily limit" : ""},
 ]
 
 export const getValidationErrors = async (account: any, amount: number) => {
