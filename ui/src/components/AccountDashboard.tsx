@@ -128,9 +128,7 @@ export const AccountDashboard = (props: AccountDashboardProps) => {
         </Grid>
       </Grid>
       {error.length > 0 &&
-        <Grid container spacing={2} padding={2}>
-          <h2 style={{color: 'red'}}>{error}</h2>
-        </Grid>
+        <h2 style={{color: 'red'}}>{error}</h2>
       }
     </Paper>
     
